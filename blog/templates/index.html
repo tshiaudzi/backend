@@ -8,8 +8,9 @@
     <a href="{{ post.get_absolute_url }}"><h2>title:{{post.title}}</h2></a>
     <p>author:{{post.author}}</p>
     
+    {% if post.post_image%}
     <img src="{{post.post_image.url}}"alt="" width="300px" height="300px">
-  
+    {% endif %}
     <p class="date">published{{post.publish}} by {{post.author}}</p>
     {{post.body|truncatewords:30|linebreaks}}
     {% endfor %}

@@ -1,10 +1,14 @@
-from django.shortcuts import render,get_object_or_404
+from multiprocessing import context
+from django.shortcuts import render,redirect,get_object_or_404
 from .models import Post,Comment
 from django.core.paginator import Paginator,EmptyPage,PageNotAnInteger
 from .forms import commentForm
 from django.views.generic import TemplateView
 from .models import book
-
+from django.contrib.auth import authenticate,login,logout
+from django.contrib import messages
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.decorators import login_required
 # Create your views here
 
 # def displayTime(request):
@@ -57,3 +61,30 @@ def post_detail(request, year, month, day, post):
         comment_Form=commentForm()
     return render(request,'post_detail.html',{'post':post,'comments':comments,'new_comment':new_comment,'comment_form':comment_Form})
 
+def loginView(request):
+    if request.method=="POST":
+        form = AuthenticationForm(request,data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get("username")
+            password = form.cleaned_data.get("password")
+            user = authenticate(username=username,password=password)
+            if user is not None:
+                login(request, user)
+                messages.info( request, f"you now logged in as{username}.")
+                return redirect("blog:profile")
+            else:
+                 messages.error(f"invalid username or password !!  retry")
+        else:
+            messages.error(f"invalid username or password !!  retry")
+    form =AuthenticationForm()
+    
+    return render(request,"authenticate/login.html",context ={'form': form} )
+
+    
+@login_required(login_url='login')
+def profileView(request):
+    return render(request,"profile.html", {})
+
+def logout_View(request):
+    logout(request)
+    return redirect('/')
